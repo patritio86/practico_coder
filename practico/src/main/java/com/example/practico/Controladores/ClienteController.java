@@ -9,6 +9,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Optional;
+
 @RestController
 @RequestMapping("/cliente")
 public class ClienteController {
@@ -29,12 +31,19 @@ public class ClienteController {
 
     @PostMapping(consumes = {MediaType.APPLICATION_JSON_VALUE}, produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<?> crearCliente(@RequestBody ClienteRequest clienteRequest) {
-        Cliente clienteAGuardar = new Cliente(
-                clienteRequest.getNombre(),
-                clienteRequest.getApellido(),
-                clienteRequest.getDni()
-        );
-        return ResponseEntity.ok(clienteService.crearCliente(clienteAGuardar));
+
+        try {
+            Cliente clienteAGuardar = new Cliente(
+                    clienteRequest.getNombre(),
+                    clienteRequest.getApellido(),
+                    clienteRequest.getDni()
+            );
+            return ResponseEntity.ok(clienteService.crearCliente(clienteAGuardar));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(e.getStackTrace());
+        }
+
+
     }
 
     //CREATE -------------------------
@@ -62,25 +71,55 @@ public class ClienteController {
         return ResponseEntity.ok(clienteRepository.save(nuevoCliente));
     }*/
 
-    //READ -------------------------
-    //http://localhost:8080/cliente/leer/1
-    @GetMapping(value = "leer/{id}")
-    public ResponseEntity<?> obtenerClientePorID(@PathVariable(name = "id") final Long id) {
-        return ResponseEntity.ok(clienteService.obtenerClientePorID(id));
+    //devuelve el cliente por numero de id -------------------------
+    //http://localhost:8080/cliente/id
+    @GetMapping(value = "/{id}", produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<?> buscarPorId(@PathVariable(name = "id") Long id) {
+        Optional<Cliente> posibleCliente = clienteService.buscarPorId(id);
+        if (posibleCliente.isPresent()) {
+            return ResponseEntity.of(posibleCliente);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
-    //Delete
-    @DeleteMapping(value = "leer/{id}")
-    public ResponseEntity<?> borrarClientePorID(@PathVariable(name = "id") final Long id) {
-        clienteRepository.deleteById(id);
-        return ResponseEntity.ok("cliente borrado");
+    // borrar cliente por numero de id
+    @DeleteMapping(value = "/{id}")
+    public ResponseEntity<?> borrarPorId(@PathVariable(name = "id") Long id){
+        clienteService.borrarPorId(id);
+        return ResponseEntity.ok().body("cliente con ID= " + id + " ha sido borrado");
     }
 
     //Put
-    @PutMapping(value = "leer/{id}")
-    public ResponseEntity<?> actualizarClientePorID(@PathVariable(name = "id") final Long id) {
-        Cliente clienteBuscado = clienteRepository.getReferenceById(id);
-        return ResponseEntity.ok(clienteBuscado);
+    @PutMapping(consumes = {MediaType.APPLICATION_JSON_VALUE})
+   public ResponseEntity<?> modificar(@RequestBody Cliente cliente){
+        try{
+            Optional<Cliente> posibleCliente= clienteService.buscarPorId(cliente.getId());
+
+            if(posibleCliente.isPresent()){
+                Cliente clienteGuardado = posibleCliente.get();
+                clienteGuardado.setApellido(cliente.getApellido());
+                clienteGuardado.setDni(cliente.getDni());
+                clienteGuardado.setNombre(cliente.getNombre());
+
+                clienteService.crearCliente(clienteGuardado);
+
+                return ResponseEntity.ok().body(clienteGuardado);
+            }else{
+               return ResponseEntity.notFound().build();
+
+            }
+        }catch (Exception e){
+            return ResponseEntity.internalServerError().body(e.getStackTrace());
+
+        }
+    }
+
+    // devuelve todos los clientes de la lista
+    //http://localhost:8080/cliente/todos
+    @GetMapping(value = "/todos", produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<?> todos() {
+        return ResponseEntity.ok().body(clienteService.todos());
     }
 
 }
