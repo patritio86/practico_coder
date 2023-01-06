@@ -26,7 +26,7 @@ public class ClienteController {
     @Autowired
     private ClienteRepository clienteRepository;
 
-    //Create Post
+    //Crear un cliente nuevo., Post
     //http://localhost:8080/cliente
 
     @PostMapping(consumes = {MediaType.APPLICATION_JSON_VALUE}, produces = {MediaType.APPLICATION_JSON_VALUE})
@@ -83,20 +83,20 @@ public class ClienteController {
         }
     }
 
-    // borrar cliente por numero de id
+    // borrar cliente por numero de id.,GET
     @DeleteMapping(value = "/{id}")
-    public ResponseEntity<?> borrarPorId(@PathVariable(name = "id") Long id){
+    public ResponseEntity<?> borrarPorId(@PathVariable(name = "id") Long id) {
         clienteService.borrarPorId(id);
         return ResponseEntity.ok().body("cliente con ID= " + id + " ha sido borrado");
     }
 
-    //Put
+    // Actualizar un cliente., PUT
     @PutMapping(consumes = {MediaType.APPLICATION_JSON_VALUE})
-   public ResponseEntity<?> modificar(@RequestBody Cliente cliente){
-        try{
-            Optional<Cliente> posibleCliente= clienteService.buscarPorId(cliente.getId());
+    public ResponseEntity<?> modificar(@RequestBody Cliente cliente) {
+        try {
+            Optional<Cliente> posibleCliente = clienteService.buscarPorId(cliente.getId());
 
-            if(posibleCliente.isPresent()){
+            if (posibleCliente.isPresent()) {
                 Cliente clienteGuardado = posibleCliente.get();
                 clienteGuardado.setApellido(cliente.getApellido());
                 clienteGuardado.setDni(cliente.getDni());
@@ -105,17 +105,17 @@ public class ClienteController {
                 clienteService.crearCliente(clienteGuardado);
 
                 return ResponseEntity.ok().body(clienteGuardado);
-            }else{
-               return ResponseEntity.notFound().build();
+            } else {
+                return ResponseEntity.notFound().build();
 
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             return ResponseEntity.internalServerError().body(e.getStackTrace());
 
         }
     }
 
-    // devuelve todos los clientes de la lista
+    // Devuelve toda la lista de clientes., GET
     //http://localhost:8080/cliente/todos
     @GetMapping(value = "/todos", produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<?> todos() {

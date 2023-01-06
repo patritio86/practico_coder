@@ -14,18 +14,20 @@ public class ClienteService {
     private ClienteRepository clienteRepository;
 
     public Cliente crearCliente(Cliente cliente) {
+
         return clienteRepository.save(cliente);
     }
-    public Optional<Cliente> buscarPorId(Long id){
+
+    public Optional<Cliente> buscarPorId(Long id) {
         return clienteRepository.findById(id);
     }
 
     //Lista de todos los clientes que existen
-    public List<Cliente> todos(){
+    public List<Cliente> todos() {
         return clienteRepository.findAll();
     }
 
-    public void borrarPorId(Long id){
+    public void borrarPorId(Long id) {
         clienteRepository.deleteById(id);
     }
 }

@@ -29,7 +29,7 @@ public class Factura {
     @ManyToOne(fetch = FetchType.EAGER)
     private Cliente cliente;
 
-    @JsonManagedReference
+    // @JsonManagedReference
     @OneToMany(mappedBy = "factura", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<Producto> producto;
 

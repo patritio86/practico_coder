@@ -20,7 +20,7 @@ public class Cliente {
     @Column(name ="DNI")
     private long dni;
 
-   @JsonManagedReference
+   //@JsonManagedReference
     @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<Factura> factura;
 
